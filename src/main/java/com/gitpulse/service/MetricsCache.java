@@ -34,8 +34,21 @@ public class MetricsCache {
         }
     }
 
+    private String buildKey(String type, String owner, String repo) {
+        return "gitpulse:v1:" + type + ":" + owner.toLowerCase(Locale.ROOT) + ":" + repo.toLowerCase(Locale.ROOT);
+    }
+
+    public void evict(String type, String owner, String repo) {
+        String key = buildKey(type, owner, repo);
+        try {
+            redis.key().del(key);
+        } catch (RuntimeException e) {
+            LOG.warnf("Valkey delete failed for key %s; ignoring cache eviction", key);
+        }
+    }
+
     public <T> T getOrFetch(String type, String owner, String repo, Class<T> resultType, Supplier<T> fetch) {
-        String key = "gitpulse:v1:" + type + ":" + owner.toLowerCase(Locale.ROOT) + ":" + repo.toLowerCase(Locale.ROOT);
+        String key = buildKey(type, owner, repo);
         String cached;
         try {
             cached = redis.value(String.class).get(key);

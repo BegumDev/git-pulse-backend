@@ -8,6 +8,7 @@ pipeline {
     environment {
         IMAGE_NAME = 'begumdev/git-pulse-backend'
         GIT_SHORT_SHA = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+        TESTCONTAINERS_HOST_OVERRIDE = 'host.docker.internal'
     }
 
     stages {
@@ -49,11 +50,6 @@ pipeline {
             }
             steps {
                 echo "Releasing versioned container artifact ${IMAGE_NAME}:${BUILD_NUMBER} (${GIT_SHORT_SHA})..."
-                // Uncomment when Docker Hub credentials ('dockerhub-creds') are configured in Jenkins:
-                // withDockerRegistry([credentialsId: 'dockerhub-creds', url: '']) {
-                //     sh "docker push ${IMAGE_NAME}:${BUILD_NUMBER}"
-                //     sh "docker push ${IMAGE_NAME}:latest"
-                // }
             }
         }
 
@@ -63,7 +59,9 @@ pipeline {
             }
             steps {
                 echo 'Deploying updated backend container via Docker Compose...'
-                sh 'docker compose up -d --build'
+                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                    sh 'docker compose up -d --build'
+                }
             }
         }
     }

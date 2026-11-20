@@ -46,7 +46,7 @@ pipeline {
 
         stage('Release') {
             when {
-                branch 'main'
+                expression { env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main' }
             }
             steps {
                 echo "Releasing versioned container artifact ${IMAGE_NAME}:${BUILD_NUMBER} (${GIT_SHORT_SHA})..."
@@ -55,7 +55,7 @@ pipeline {
 
         stage('Deploy') {
             when {
-                branch 'main'
+                expression { env.GIT_BRANCH == 'origin/main' || env.BRANCH_NAME == 'main' }
             }
             steps {
                 echo 'Deploying updated backend container via Docker Compose...'

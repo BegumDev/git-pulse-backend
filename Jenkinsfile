@@ -14,14 +14,14 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Compiling Quarkus backend with Maven...'
-                sh 'mvn -B clean compile'
+                sh './mvnw -B clean compile'
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Running JUnit 5 & Testcontainers/WireMock automated tests...'
-                sh 'mvn -B test'
+                sh './mvnw -B test'
             }
             post {
                 always {
@@ -33,7 +33,7 @@ pipeline {
         stage('Package & Containerize') {
             steps {
                 echo 'Packaging Quarkus fast-jar and building Docker image...'
-                sh 'mvn -B package -DskipTests'
+                sh './mvnw -B package -DskipTests'
                 sh """
                     docker build \
                       -t ${IMAGE_NAME}:${BUILD_NUMBER} \

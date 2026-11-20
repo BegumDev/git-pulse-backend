@@ -193,4 +193,12 @@ public class MetricsService {
         }
     }
 
+
+    public void invalidateMetricsCache(String owner, String repo) {
+        cache.evict("repo-metrics", owner, repo);
+    }
+
+    public void invalidateBranchCache(String owner, String repo) {
+        cache.evict("branch-health", owner, repo);
+    }
 }
